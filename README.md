@@ -1,2 +1,2 @@
 # ConcessionaryProtocol
-ConcessionaryProtocol Playground
+ConcessionaryProtocol Playground with Swift 4
