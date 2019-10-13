@@ -1,89 +1,121 @@
 import UIKit
 
-
-enum marcaEnum: String {
+/// Car Brand Enumeration.
+/// - audi: Audi brand, string raw value: "Audi".
+/// - mercedes: Mercedes brand, string raw value: "Mercedes".
+/// - volvo: Volvo brand, string raw value: "Volvo".
+enum carBrand: String {
     case audi = "Audi"
     case mercedes = "Mercedes"
     case volvo = "Volvo"
 }
 
+/// Sort Order Enumeration.
+/// - asc: Ascendent order.
+/// - desc: Descendent order.
 enum sortOrder {
-    case asc, desc
+    case asc
+    case desc
 }
 
-protocol ConcesionarioProtocol {
-    var marca: marcaEnum { get set }
-    var catalogo: Array<Coche> { get set }
+/// Dealership Properties and Actions.
+protocol DealershipProtocol {
+    var brand: carBrand { get set }
+    var catalog: Array<Car> { get set }
     
-    func setCoche(_coches: Array<Coche>)
-    func mostrarCatalogo()
-    func sortCatalogo(order: sortOrder) -> Array<Coche>
+    func add(newCars: Array<Car>)
+    func showCatalog()
+    func sortCatalog(order: sortOrder) -> Array<Car>
 }
 
-class Coche {
-    var modelo: String
-    var precio: Double
-
-    init(_modelo: String, _ _precio: Double) {
-        self.modelo = _modelo
-        self.precio = _precio
+/// Basic Car Structure.
+struct Car {
+    /// Car Model.
+    var model: String
+    
+    /// Car Price.
+    var price: Double
+    
+    /// Car Initialization Method.
+    /// - Parameter model: String Car Model Name.
+    /// - Parameter price: Double Car Price.
+    init(model: String, price: Double) {
+        self.model = model
+        self.price = price
     }
     
+    /// Description About this Car Structure.
     func description() {
-        print("Coche modelo \(self.modelo), desde: \(self.precio)€")
+        print("Car Model \(self.model), Starting at: \(self.price)€")
     }
 }
 
-class Concesionario: ConcesionarioProtocol {
-    var nombre: String
+/// Customizable Dealership Model, Following the DealershipProtocol.
+class Dealership: DealershipProtocol {
+    /// Dealership Name.
+    var name: String
     
-    init(_nombre: String, _marca: marcaEnum) {
-        self.nombre = _nombre
-        self.marca = _marca
-        self.catalogo = Array()
+    /// Dealership initialization Method.
+    /// - Parameter name: String Dealership Name.
+    /// - Parameter brand: carBrand Dealerhip Brand.
+    init(name: String, brand: carBrand) {
+        self.name = name
+        self.brand = brand
     }
     
-    // PROTOCOL
-    var marca: marcaEnum
-    var catalogo: Array<Coche>
+    // DealershipProtocol Implementation.
+    /// Dealership Brand.
+    var brand: carBrand
+    /// Dealership Catalog.
+    lazy var catalog: Array<Car> = []
     
-    func setCoche(_coches: Array<Coche>) {
-        _coches.forEach { (nuevoCoche) in
-            self.catalogo.append(nuevoCoche)
+    /// Method for Add New Cars in to the Dealership.
+    /// - Parameter newCars: Cars Array.
+    func add(newCars: Array<Car>) {
+        newCars.forEach { (car) in
+            self.catalog.append(car)
         }
     }
     
-    func mostrarCatalogo() {
-        print("--Catálogo del concesionario \(self.nombre), tu concesionario \(self.marca.rawValue)--")
-        self.catalogo.forEach { (coche) in
+    /// Print on Console the Catalog Cars Description.
+    /// If the Catalog is Empty, this Method does not Show Any Car Description.
+    func showCatalog() {
+        guard !self.catalog.isEmpty else {
+            print("This Dealership does not have any Vehicle")
+            return
+        }
+        
+        print("--\(self.name) Catalog, Your \(self.brand.rawValue) Dealership--")
+        self.catalog.forEach { (coche) in
             coche.description()
         }
     }
     
-    func sortCatalogo(order: sortOrder) -> Array<Coche> {
-        return self.catalogo.sorted{ (el1, el2) -> Bool in
-            order == sortOrder.asc ? el1.precio < el2.precio : el1.precio > el2.precio
+    /// Short the Dealership Catalog following the sortOrder Enumeration.
+    /// - Parameter order: Sort Order Enumeration.-
+    func sortCatalog(order: sortOrder) -> Array<Car> {
+        return self.catalog.sorted{ (el1, el2) -> Bool in
+            order == sortOrder.asc ? el1.price < el2.price : el1.price > el2.price
         }
     }
 }
 
-let concesionario = Concesionario.init(_nombre: "Fresneda", _marca: .volvo)
-concesionario.setCoche(_coches:
-    Array.init(
-        arrayLiteral:
-        Coche.init(_modelo: "V60", 30000),
-        Coche.init(_modelo: "V90", 50000),
-        Coche.init(_modelo: "XC40", 40000)
-    )
+let dealership = Dealership.init(name: "Fresneda", brand: .volvo)
+dealership.add(newCars:
+    [
+        Car.init(model: "V60", price: 30000),
+        Car.init(model: "V90", price: 50000),
+        Car.init(model: "XC40", price: 40000)
+    ]
 )
-concesionario.mostrarCatalogo()
+dealership.showCatalog()
 
 print("\n--Sorted ASC--")
-concesionario.sortCatalogo(order: .asc ).forEach { (coche) in
-    coche.description()
+dealership.sortCatalog(order: .asc ).forEach { (car) in
+    car.description()
 }
 
 print("\n--Sorted DES--")
-concesionario.sortCatalogo(order: .desc ).forEach { (coche) in
-    coche.description()
+dealership.sortCatalog(order: .desc ).forEach { (car) in
+    car.description()
 }
